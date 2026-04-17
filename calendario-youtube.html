@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Programmazione YouTube</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #feeddd;
+    --peach: #fec1b6;
+    --pink-light: #f3a6ba;
+    --pink-mid: #df678f;
+    --purple: #9391bc;
+    --teal: #7abcc4;
+    --text-dark: #4a2535;
+    --text-mid: #8a4560;
+    --text-muted: #b07090;
+    --card-bg: #fff8f4;
+    --border: rgba(223,103,143,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    font-size: 15px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  header h1 {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--pink-mid);
+    letter-spacing: -0.3px;
+  }
+
+  header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .stat-card .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .stat-card .value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--pink-mid);
+  }
+
+  .stat-card .sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .main-layout {
+    display: grid;
+    grid-template-columns: 360px 1fr 280px;
+    gap: 20px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 900px) {
+    .main-layout { grid-template-columns: 360px 1fr; }
+    .recap-panel { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 680px) {
+    .main-layout { grid-template-columns: 1fr; }
+  }
+
+  .recap-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    align-self: start;
+    position: sticky;
+    top: 20px;
+  }
+
+  .recap-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .recap-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .recap-item:first-child { padding-top: 0; }
+
+  .recap-series-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .recap-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .recap-date {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    padding-left: 16px;
+  }
+
+  .recap-ep-count {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding-left: 16px;
+  }
+
+  .recap-empty {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 12px 0;
+  }
+
+  .btn-insert {
+    padding: 9px 18px;
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+    height: 38px;
+  }
+
+  .btn-insert:hover { background: #60a0a8; }
+  .btn-insert:active { transform: scale(0.98); }
+
+  .inserted-badge {
+    background: #e0f4f6;
+    color: #1a5560;
+  }
+
+  .cal-row-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px 8px 42px;
+  }
+
+
+
+  .note-input-wrap {
+    padding: 6px 12px 10px 42px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .note-input-wrap input {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1.5px solid var(--pink-light);
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    color: var(--text-dark);
+    outline: none;
+    background: white;
+  }
+
+  .note-input-wrap input:focus { border-color: var(--pink-mid); }
+
+  .btn-note-save {
+    padding: 5px 12px;
+    background: var(--pink-mid);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .btn-note-save:hover { background: #c95080; }
+
+  .btn-note-cancel {
+    padding: 5px 10px;
+    background: none;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .note-icon {
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+
+  .note-icon:hover { opacity: 1; }
+  .note-icon.has-note { opacity: 1; color: var(--pink-mid); }
+
+  .panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .panel h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--pink-mid);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .panel h2 span { font-size: 16px; }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-mid);
+    margin-bottom: 4px;
+  }
+
+  .form-group input[type="date"],
+  .form-group input[type="number"],
+  .form-group input[type="text"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    color: var(--text-dark);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus {
+    border-color: var(--pink-mid);
+  }
+
+  .series-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .series-item {
+    display: grid;
+    grid-template-columns: 10px 1fr auto 52px auto;
+    align-items: center;
+    gap: 7px;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 10px;
+    transition: border-color 0.2s;
+  }
+
+  .series-item:hover { border-color: var(--pink-light); }
+
+  .series-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .series-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .series-ep-input {
+    width: 52px;
+    padding: 5px 6px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    outline: none;
+    background: var(--cream);
+  }
+
+  .series-ep-input:focus { border-color: var(--pink-mid); }
+
+  .series-type {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .type-main { background: #fde8f0; color: #c04070; }
+  .type-casual { background: #e8f0fe; color: #4060b0; }
+
+  .btn-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 2px 4px;
+    border-radius: 5px;
+    transition: color 0.2s, background 0.2s;
+    line-height: 1;
+  }
+
+  .btn-delete:hover { color: var(--pink-mid); background: #fde8f0; }
+
+  .add-series-form {
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .add-series-form h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 0;
+  }
+
+  .add-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .add-row input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    color: var(--text-dark);
+    background: white;
+    outline: none;
+  }
+
+  .add-row input[type="text"]:focus { border-color: var(--pink-mid); }
+
+  .add-row input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    color: var(--text-dark);
+    background: white;
+    outline: none;
+  }
+
+  .add-row input[type="number"]:focus { border-color: var(--pink-mid); }
+
+  .add-row select {
+    flex-shrink: 0;
+    padding: 8px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    color: var(--text-dark);
+    background: white;
+    outline: none;
+    cursor: pointer;
+    max-width: 100%;
+  }
+
+  .btn-add {
+    width: 100%;
+    padding: 9px;
+    background: var(--pink-mid);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-add:hover { background: #c95080; }
+  .btn-add:active { transform: scale(0.98); }
+
+  .btn-generate {
+    width: 100%;
+    padding: 11px;
+    background: var(--purple);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.2px;
+  }
+
+  .btn-generate:hover { background: #7a78a8; }
+  .btn-generate:active { transform: scale(0.98); }
+
+  .calendar-panel { display: flex; flex-direction: column; gap: 0; }
+
+  .calendar-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .calendar-toolbar h2 {
+    margin-bottom: 0;
+  }
+
+  .btn-export {
+    padding: 7px 14px;
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-export:hover { background: #60a0a8; }
+
+  .algo-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .algo-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 8px 10px;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .algo-btn:hover { border-color: var(--pink-light); color: var(--pink-mid); }
+  .algo-btn.active { background: var(--pink-mid); border-color: var(--pink-mid); color: white; }
+
+  .algo-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    line-height: 1.5;
+    min-height: 36px;
+    transition: opacity 0.2s;
+  }
+
+  .algo-desc strong {
+    color: var(--pink-mid);
+    font-weight: 700;
+  }
+
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px 3px 7px;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .month-block { margin-bottom: 18px; }
+
+  .month-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--pink-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .cal-rows { display: flex; flex-direction: column; gap: 5px; }
+
+  .cal-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 9px 12px;
+    cursor: grab;
+    transition: border-color 0.2s, transform 0.1s;
+    user-select: none;
+  }
+
+  .cal-row:hover { border-color: var(--pink-light); }
+  .cal-row.dragging { opacity: 0.5; transform: scale(0.98); }
+  .cal-row.drag-over { border-color: var(--pink-mid); border-style: dashed; }
+
+  .cal-row-date {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    min-width: 110px;
+    border-bottom: 1px dashed transparent;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .cal-row-date:hover {
+    color: var(--pink-mid);
+    border-bottom-color: var(--pink-mid);
+  }
+
+  .cal-badge {
+    font-size: 14px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    flex: 1;
+  }
+
+  .cal-row-handle {
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: grab;
+    opacity: 0.5;
+  }
+
+  .pin-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 3px 7px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .pin-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .pin-btn.pinned { background: var(--purple); color: white; border-color: var(--purple); }
+
+  .pinned-row { background: #f5f3fc; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .empty-state .big { font-size: 32px; margin-bottom: 8px; }
+
+  .color-picker-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .color-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .color-swatch:hover { transform: scale(1.2); }
+  .color-swatch.selected { border-color: var(--text-dark); transform: scale(1.15); }
+
+  .color-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Studio Programmazione YouTube</h1>
+  <p id="header-sub">Pianifica le uscite del tuo canale</p>
+</header>
+
+<div id="sheets-bar" style="max-width:1280px;margin:0 auto 16px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+  <span style="font-size:14px;font-weight:700;color:var(--text-mid);white-space:nowrap;">Google Sheets</span>
+  <input type="text" id="sheetsUrl" placeholder="Incolla qui l'URL della Web App..." style="flex:1;min-width:200px;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;color:var(--text-dark);outline:none;background:white;" />
+  <button onclick="connectSheets()" style="padding:8px 16px;background:var(--teal);color:white;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Connetti</button>
+  <button onclick="saveToSheets()" style="padding:8px 16px;background:var(--purple);color:white;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Salva</button>
+  <span id="sheets-status" style="font-size:13px;font-weight:600;color:var(--text-muted);">Non connesso</span>
+</div>
+
+<div class="summary-grid">
+  <div class="stat-card">
+    <div class="label">Video totali</div>
+    <div class="value" id="stat-total">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Fine prevista</div>
+    <div class="value" id="stat-end">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Serie attive</div>
+    <div class="value" id="stat-series">0</div>
+  </div>
+</div>
+
+<div class="main-layout">
+
+  <div class="panel">
+    <h2><span>📅</span> Impostazioni</h2>
+
+    <div class="form-group">
+      <label>Data primo martedì</label>
+      <input type="date" id="startDate" />
+    </div>
+
+    <h2 style="margin-top:16px;"><span>🎬</span> Serie</h2>
+    <div class="series-list" id="seriesList"></div>
+
+    <div class="add-series-form">
+      <h3>Aggiungi serie</h3>
+      <div class="add-row">
+        <input type="text" id="newSeriesName" placeholder="Nome serie" maxlength="30" />
+        <select id="newSeriesType">
+          <option value="main">Principale</option>
+          <option value="casual">Casual</option>
+        </select>
+      </div>
+      <div class="color-picker-row">
+        <span class="color-label">Colore:</span>
+        <div class="color-swatch selected" style="background:#df678f" data-color="#df678f,#fde8f0,#7a2340"></div>
+        <div class="color-swatch" style="background:#7abcc4" data-color="#7abcc4,#e0f4f6,#1a5560"></div>
+        <div class="color-swatch" style="background:#9391bc" data-color="#9391bc,#eeedf8,#2a2860"></div>
+        <div class="color-swatch" style="background:#fec1b6" data-color="#fec1b6,#fff0ee,#7a3020"></div>
+        <div class="color-swatch" style="background:#f3a6ba" data-color="#f3a6ba,#fdeef3,#7a2040"></div>
+        <div class="color-swatch" style="background:#c8a8e0" data-color="#c8a8e0,#f5eeff,#4a1870"></div>
+      </div>
+      <div class="form-group">
+        <label>Numero episodi</label>
+        <input type="number" id="newSeriesEp" placeholder="es. 8" min="1" max="50" />
+      </div>
+      <button class="btn-add" onclick="addSeries()">+ Aggiungi serie</button>
+    </div>
+
+    <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:16px;display:flex;flex-direction:column;gap:12px;">
+      <h2 style="margin-bottom:0;"><span>➕</span> Video singolo</h2>
+      <div class="form-group">
+        <label>Titolo video</label>
+        <input type="text" id="insertTitle" placeholder="es. Libro-game ep. 1" maxlength="60" />
+      </div>
+      <div class="form-group">
+        <label>Data uscita (martedì)</label>
+        <input type="date" id="insertDate" />
+      </div>
+      <div class="form-group">
+        <label>Colore badge</label>
+        <div class="color-picker-row" id="insertColorRow">
+          <span class="color-label">Colore:</span>
+          <div class="color-swatch insert-swatch selected" style="background:#7abcc4" data-color="#7abcc4,#e0f4f6,#1a5560"></div>
+          <div class="color-swatch insert-swatch" style="background:#df678f" data-color="#df678f,#fde8f0,#7a2340"></div>
+          <div class="color-swatch insert-swatch" style="background:#9391bc" data-color="#9391bc,#eeedf8,#2a2860"></div>
+          <div class="color-swatch insert-swatch" style="background:#fec1b6" data-color="#fec1b6,#fff0ee,#7a3020"></div>
+          <div class="color-swatch insert-swatch" style="background:#f3a6ba" data-color="#f3a6ba,#fdeef3,#7a2040"></div>
+          <div class="color-swatch insert-swatch" style="background:#c8a8e0" data-color="#c8a8e0,#f5eeff,#4a1870"></div>
+        </div>
+      </div>
+      <button class="btn-insert" onclick="insertSingleVideo()">Inserisci ✨</button>
+    </div>
+
+    <button class="btn-generate" onclick="generateCalendar()">Genera calendario ✨</button>
+  </div>
+
+  <div class="panel calendar-panel">
+    <div class="calendar-toolbar">
+      <h2><span>🗓</span> Calendario</h2>
+      <button class="btn-export" onclick="exportPDF()">Esporta PDF</button>
+    </div>
+    <div class="legend-row" id="legendRow"></div>
+    <div id="calendarOutput"><div class="empty-state"><div class="big">✨</div>Imposta le serie e genera il calendario!</div></div>
+  </div>
+
+  <div class="panel recap-panel">
+    <h2><span>🔀</span> Algoritmo</h2>
+    <div class="algo-selector">
+      <button class="algo-btn active" data-algo="alternanza" onclick="setAlgo('alternanza')">Alternanza</button>
+      <button class="algo-btn" data-algo="blocchi" onclick="setAlgo('blocchi')">Blocchi</button>
+      <button class="algo-btn" data-algo="priorita" onclick="setAlgo('priorita')">Priorità</button>
+    </div>
+    <div class="algo-desc" id="algoDesc"><strong>Alternanza</strong> — Un episodio per serie a turno. Tiene il canale vario e fidelizza spettatori diversi settimana per settimana. La scelta piu sicura per canali in crescita.</div>
+
+    <h2 style="margin-top:20px;"><span>🏁</span> Fine serie</h2>
+    <div id="recapOutput"><div class="recap-empty">Genera il calendario per vedere le date di fine.</div></div>
+  </div>
+
+</div>
+
+<script>
+const PRESET_COLORS = [
+  { dot: '#df678f', bg: '#fde8f0', text: '#7a2340' },
+  { dot: '#7abcc4', bg: '#e0f4f6', text: '#1a5560' },
+  { dot: '#9391bc', bg: '#eeedf8', text: '#2a2860' },
+  { dot: '#fec1b6', bg: '#fff0ee', text: '#7a3020' },
+  { dot: '#f3a6ba', bg: '#fdeef3', text: '#7a2040' },
+  { dot: '#c8a8e0', bg: '#f5eeff', text: '#4a1870' },
+];
+
+let series = [
+  { id: 1, name: 'Oneshot', type: 'main', episodes: 8, color: { dot: '#df678f', bg: '#fde8f0', text: '#7a2340' } },
+  { id: 2, name: 'It Takes Two', type: 'main', episodes: 6, color: { dot: '#7abcc4', bg: '#e0f4f6', text: '#1a5560' } },
+  { id: 3, name: 'vSims', type: 'casual', episodes: 3, color: { dot: '#9391bc', bg: '#eeedf8', text: '#2a2860' } },
+  { id: 4, name: 'Funny Moments', type: 'casual', episodes: 2, color: { dot: '#fec1b6', bg: '#fff0ee', text: '#7a3020' } },
+];
+
+let nextId = 5;
+let calendarItems = [];
+let selectedColor = PRESET_COLORS[0];
+let dragSrc = null;
+
+let insertSelectedColor = { dot: '#7abcc4', bg: '#e0f4f6', text: '#1a5560' };
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.insert-swatch').forEach(sw => {
+    sw.addEventListener('click', function() {
+      document.querySelectorAll('.insert-swatch').forEach(s => s.classList.remove('selected'));
+      this.classList.add('selected');
+      const [dot, bg, text] = this.dataset.color.split(',');
+      insertSelectedColor = { dot, bg, text };
+    });
+  });
+});
+
+function toggleDateEdit(idx) {
+  const display = document.getElementById('date-display-' + idx);
+  const edit = document.getElementById('date-edit-' + idx);
+  if (!display || !edit) return;
+  const isEditing = edit.style.display !== 'none';
+  display.style.display = isEditing ? '' : 'none';
+  edit.style.display = isEditing ? 'none' : 'flex';
+  if (!isEditing) {
+    const input = document.getElementById('date-input-' + idx);
+    if (input) input.focus();
+  }
+}
+
+function saveDate(idx) {
+  const input = document.getElementById('date-input-' + idx);
+  if (!input || !input.value) return;
+  calendarItems[idx].date = new Date(input.value + 'T12:00:00');
+  renderCalendar();
+}
+
+function toggleNoteInput(idx) {
+  const wrap = document.getElementById('note-wrap-' + idx);
+  if (!wrap) return;
+  const isVisible = wrap.style.display !== 'none';
+  wrap.style.display = isVisible ? 'none' : 'flex';
+  if (!isVisible) {
+    const input = document.getElementById('note-input-' + idx);
+    if (input) input.focus();
+  }
+}
+
+function saveNote(idx) {
+  const input = document.getElementById('note-input-' + idx);
+  if (!input) return;
+  calendarItems[idx].note = input.value.trim();
+  renderCalendar();
+}
+
+function insertSingleVideo() {
+  if (calendarItems.length === 0) { alert('Genera prima il calendario!'); return; }
+  const title = document.getElementById('insertTitle').value.trim();
+  const dateVal = document.getElementById('insertDate').value;
+  if (!title) { alert('Inserisci il titolo del video!'); return; }
+  if (!dateVal) { alert('Seleziona la data!'); return; }
+
+  const insertDate = new Date(dateVal + 'T12:00:00');
+  const { dot, bg, text } = insertSelectedColor;
+
+  const singleId = 'single_' + Date.now();
+  const tempSeries = { id: singleId, name: title, type: 'single', color: { dot, bg, text } };
+  series.push(tempSeries);
+
+  const newItem = { seriesId: singleId, ep: null, pinned: true, date: new Date(insertDate) };
+
+  let insertIdx = calendarItems.length;
+  for (let i = 0; i < calendarItems.length; i++) {
+    if (calendarItems[i].date >= insertDate) {
+      insertIdx = i;
+      break;
+    }
+  }
+
+  calendarItems.splice(insertIdx, 0, newItem);
+
+  for (let i = insertIdx + 1; i < calendarItems.length; i++) {
+    if (!calendarItems[i].pinned) {
+      const d = new Date(calendarItems[i].date);
+      d.setDate(d.getDate() + 7);
+      calendarItems[i].date = d;
+    }
+  }
+
+  document.getElementById('insertTitle').value = '';
+  document.getElementById('insertDate').value = '';
+  renderCalendar();
+}
+
+const ALGO_DESCS = {
+  alternanza: '<strong>Alternanza</strong> — Un episodio per serie a turno. Tiene il canale vario e fidelizza spettatori diversi settimana per settimana. La scelta più sicura per canali in crescita.',
+  blocchi: '<strong>Blocchi</strong> — 2-3 episodi della stessa serie di fila prima di cambiare. Chi segue una serie specifica la vede tutta di seguito, ma rischi di perdere chi preferisce la varieta.',
+  priorita: '<strong>Priorità</strong> — Prima esaurisce la serie con piu episodi rimasti, poi passa alla successiva. Utile per smaltire il backlog in modo ordinato, ma il canale risulta meno vario.'
+};
+
+let currentAlgo = 'alternanza';
+
+function setAlgo(algo) {
+  currentAlgo = algo;
+  document.querySelectorAll('.algo-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.algo === algo);
+  });
+  document.getElementById('algoDesc').innerHTML = ALGO_DESCS[algo];
+}
+
+let sheetsUrl = localStorage.getItem('sheetsUrl') || '';
+
+function connectSheets() {
+  const url = document.getElementById('sheetsUrl').value.trim();
+  if (!url) { alert('Incolla prima l'URL della Web App!'); return; }
+  sheetsUrl = url;
+  localStorage.setItem('sheetsUrl', url);
+  loadFromSheets();
+}
+
+async function loadFromSheets() {
+  if (!sheetsUrl) return;
+  document.getElementById('sheets-status').textContent = 'Caricamento...';
+  document.getElementById('sheets-status').style.color = 'var(--text-muted)';
+  try {
+    const res = await fetch(sheetsUrl + '?action=load');
+    const json = await res.json();
+    if (json.data) {
+      const d = json.data;
+      if (d.series) { series = d.series; nextId = Math.max(...series.map(s => s.id), 4) + 1; }
+      if (d.startDate) document.getElementById('startDate').value = d.startDate;
+      if (d.calendarItems) {
+        calendarItems = d.calendarItems.map(item => ({ ...item, date: new Date(item.date) }));
+      }
+      if (d.algo) { currentAlgo = d.algo; setAlgo(d.algo); }
+      renderSeriesList();
+      if (calendarItems.length > 0) renderCalendar();
+      document.getElementById('sheets-status').textContent = 'Connesso';
+      document.getElementById('sheets-status').style.color = '#0f6e56';
+    } else {
+      document.getElementById('sheets-status').textContent = 'Connesso — nessun dato';
+      document.getElementById('sheets-status').style.color = '#0f6e56';
+    }
+  } catch(e) {
+    document.getElementById('sheets-status').textContent = 'Errore connessione';
+    document.getElementById('sheets-status').style.color = '#a32d2d';
+  }
+}
+
+async function saveToSheets() {
+  if (!sheetsUrl) { alert('Prima connetti Google Sheets!'); return; }
+  document.getElementById('sheets-status').textContent = 'Salvataggio...';
+  document.getElementById('sheets-status').style.color = 'var(--text-muted)';
+  const payload = {
+    action: 'save',
+    data: {
+      series,
+      startDate: document.getElementById('startDate').value,
+      calendarItems: calendarItems.map(item => ({ ...item, date: item.date.toISOString() })),
+      algo: currentAlgo
+    }
+  };
+  try {
+    await fetch(sheetsUrl, { method: 'POST', body: JSON.stringify(payload) });
+    document.getElementById('sheets-status').textContent = 'Salvato!';
+    document.getElementById('sheets-status').style.color = '#0f6e56';
+    setTimeout(() => {
+      document.getElementById('sheets-status').textContent = 'Connesso';
+    }, 2000);
+  } catch(e) {
+    document.getElementById('sheets-status').textContent = 'Errore salvataggio';
+    document.getElementById('sheets-status').style.color = '#a32d2d';
+  }
+}
+
+function setNextTuesday() {
+  const today = new Date();
+  const day = today.getDay();
+  const diff = day <= 2 ? 2 - day : 9 - day;
+  const next = new Date(today);
+  next.setDate(today.getDate() + diff);
+  document.getElementById('startDate').value = next.toISOString().split('T')[0];
+}
+
+function renderSeriesList() {
+  const el = document.getElementById('seriesList');
+  el.innerHTML = '';
+  series.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'series-item';
+    row.innerHTML = `
+      <div class="series-dot" style="background:${s.color.dot}"></div>
+      <div class="series-name">${s.name}</div>
+      <span class="series-type ${s.type === 'main' ? 'type-main' : 'type-casual'}">${s.type === 'main' ? 'principale' : 'casual'}</span>
+      <input class="series-ep-input" type="number" min="0" max="50" value="${s.episodes}" onchange="updateEpisodes(${s.id}, this.value)" />
+      <button class="btn-delete" onclick="deleteSeries(${s.id})">✕</button>
+    `;
+    el.appendChild(row);
+  });
+  updateStats();
+}
+
+function updateEpisodes(id, val) {
+  const s = series.find(x => x.id === id);
+  if (s) s.episodes = parseInt(val) || 0;
+  updateStats();
+}
+
+function deleteSeries(id) {
+  series = series.filter(x => x.id !== id);
+  renderSeriesList();
+}
+
+function addSeries() {
+  const name = document.getElementById('newSeriesName').value.trim();
+  const type = document.getElementById('newSeriesType').value;
+  const ep = parseInt(document.getElementById('newSeriesEp').value) || 1;
+  if (!name) { alert('Inserisci il nome della serie!'); return; }
+  series.push({ id: nextId++, name, type, episodes: ep, color: { ...selectedColor } });
+  document.getElementById('newSeriesName').value = '';
+  document.getElementById('newSeriesEp').value = '';
+  renderSeriesList();
+}
+
+document.querySelectorAll('.color-swatch').forEach(sw => {
+  sw.addEventListener('click', function() {
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    this.classList.add('selected');
+    const [dot, bg, text] = this.dataset.color.split(',');
+    selectedColor = { dot, bg, text };
+  });
+});
+
+function buildCasuals(casualSeries) {
+  const casuals = [];
+  let casualCounters = {};
+  casualSeries.forEach(s => casualCounters[s.id] = 1);
+  let ci = 0;
+  while (true) {
+    let found = false;
+    for (let j = 0; j < casualSeries.length; j++) {
+      const s = casualSeries[(ci + j) % casualSeries.length];
+      if (casualCounters[s.id] <= s.episodes) {
+        casuals.push({ seriesId: s.id, ep: casualCounters[s.id]++ });
+        ci = (ci + j + 1) % casualSeries.length;
+        found = true;
+        break;
+      }
+    }
+    if (!found) break;
+  }
+  return casuals;
+}
+
+function injectCasuals(narrative, casuals) {
+  const result = [];
+  let ni = 0, casuIdx = 0, sinceCasual = 0;
+  while (ni < narrative.length || casuIdx < casuals.length) {
+    if (ni < narrative.length) { result.push({ ...narrative[ni++], pinned: false }); sinceCasual++; }
+    if (ni < narrative.length) { result.push({ ...narrative[ni++], pinned: false }); sinceCasual++; }
+    if (sinceCasual >= 2 && casuIdx < casuals.length) {
+      result.push({ ...casuals[casuIdx++], pinned: false });
+      sinceCasual = 0;
+    }
+  }
+  while (casuIdx < casuals.length) result.push({ ...casuals[casuIdx++], pinned: false });
+  return result;
+}
+
+function buildSequence() {
+  const mainSeries = series.filter(s => s.type === 'main');
+  const casualSeries = series.filter(s => s.type === 'casual');
+  const casuals = buildCasuals(casualSeries);
+
+  if (currentAlgo === 'alternanza') {
+    const narrative = [];
+    let counters = {};
+    mainSeries.forEach(s => counters[s.id] = 1);
+    const maxMain = Math.max(...mainSeries.map(s => s.episodes), 0);
+    for (let i = 0; i < maxMain; i++) {
+      mainSeries.forEach(s => {
+        if (counters[s.id] <= s.episodes) narrative.push({ seriesId: s.id, ep: counters[s.id]++ });
+      });
+    }
+    return injectCasuals(narrative, casuals);
+  }
+
+  if (currentAlgo === 'blocchi') {
+    const BLOCK = 2;
+    const narrative = [];
+    let counters = {};
+    mainSeries.forEach(s => counters[s.id] = 1);
+    let done = false;
+    while (!done) {
+      done = true;
+      mainSeries.forEach(s => {
+        let added = 0;
+        while (counters[s.id] <= s.episodes && added < BLOCK) {
+          narrative.push({ seriesId: s.id, ep: counters[s.id]++ });
+          added++;
+          done = false;
+        }
+      });
+    }
+    return injectCasuals(narrative, casuals);
+  }
+
+  if (currentAlgo === 'priorita') {
+    const narrative = [];
+    let counters = {};
+    mainSeries.forEach(s => counters[s.id] = 1);
+    const sorted = [...mainSeries].sort((a, b) => b.episodes - a.episodes);
+    sorted.forEach(s => {
+      while (counters[s.id] <= s.episodes) {
+        narrative.push({ seriesId: s.id, ep: counters[s.id]++ });
+      }
+    });
+    return injectCasuals(narrative, casuals);
+  }
+
+  return [];
+}
+
+function generateCalendar() {
+  const startVal = document.getElementById('startDate').value;
+  if (!startVal) { alert('Seleziona la data di inizio!'); return; }
+  const startDate = new Date(startVal + 'T12:00:00');
+  const seq = buildSequence();
+  calendarItems = seq.map((item, i) => {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i * 7);
+    return { ...item, date: new Date(d), originalIndex: i };
+  });
+  renderCalendar();
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function formatMonth(d) {
+  return d.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+}
+
+function getSeries(id) { return series.find(s => s.id === id); }
+
+function renderCalendar() {
+  const out = document.getElementById('calendarOutput');
+  if (calendarItems.length === 0) {
+    out.innerHTML = '<div class="empty-state"><div class="big">✨</div>Imposta le serie e genera il calendario!</div>';
+    updateStats();
+    renderLegend();
+    return;
+  }
+
+  let html = '';
+  let currentMonth = '';
+  let monthBuf = '';
+  let rowsBuf = '';
+
+  calendarItems.forEach((item, idx) => {
+    const s = getSeries(item.seriesId);
+    if (!s) return;
+    const month = formatMonth(item.date);
+    if (month !== currentMonth) {
+      if (currentMonth !== '') {
+        html += `<div class="month-block"><div class="month-title">${currentMonth}</div><div class="cal-rows">${rowsBuf}</div></div>`;
+        rowsBuf = '';
+      }
+      currentMonth = month;
+    }
+    const pinClass = item.pinned ? ' pinned-row' : '';
+    const pinLabel = item.pinned ? 'bloccato' : 'blocca';
+
+    const noteDisplay = '';
+    rowsBuf += `
+      <div class="cal-row${pinClass}" draggable="true" data-idx="${idx}"
+           ondragstart="onDragStart(event,${idx})"
+           ondragover="onDragOver(event)"
+           ondrop="onDrop(event,${idx})"
+           ondragleave="onDragLeave(event)">
+        <span class="cal-row-handle">⠿</span>
+        <div class="cal-row-date" onclick="toggleDateEdit(${idx})" title="Clicca per cambiare data" style="cursor:pointer;" id="date-display-${idx}">${formatDate(item.date)}</div>
+        <div id="date-edit-${idx}" style="display:none;align-items:center;gap:5px;">
+          <input type="date" id="date-input-${idx}" value="${item.date.toISOString().split('T')[0]}" style="padding:4px 8px;border:1.5px solid var(--pink-mid);border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;color:var(--text-dark);outline:none;" />
+          <button onclick="saveDate(${idx})" style="padding:4px 10px;background:var(--pink-mid);color:white;border:none;border-radius:7px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">Ok</button>
+          <button onclick="toggleDateEdit(${idx})" style="padding:4px 8px;background:none;border:1px solid var(--border);border-radius:7px;font-family:'Nunito',sans-serif;font-size:11px;cursor:pointer;color:var(--text-muted);">✕</button>
+        </div>
+        <div class="cal-badge" style="background:${s.color.bg};color:${s.color.text};cursor:pointer;" onclick="toggleNoteInput(${idx})">
+          ${item.ep !== null ? s.name + ' ep. ' + item.ep : s.name}
+          ${item.note ? `<div style="font-size:10px;font-weight:600;opacity:0.75;margin-top:2px;">📝 ${item.note}</div>` : ''}
+        </div>
+        <button class="pin-btn ${item.pinned ? 'pinned' : ''}" onclick="togglePin(${idx})">${pinLabel}</button>
+      </div>
+      ${noteDisplay}
+      <div class="note-input-wrap" id="note-wrap-${idx}" style="display:none;">
+        <input type="text" id="note-input-${idx}" placeholder="Aggiungi una nota..." maxlength="120" value="${item.note || ''}" onkeydown="if(event.key==='Enter') saveNote(${idx})" />
+        <button class="btn-note-save" onclick="saveNote(${idx})">Salva</button>
+        <button class="btn-note-cancel" onclick="toggleNoteInput(${idx})">✕</button>
+      </div>`;
+  });
+
+  if (currentMonth) {
+    html += `<div class="month-block"><div class="month-title">${currentMonth}</div><div class="cal-rows">${rowsBuf}</div></div>`;
+  }
+
+  out.innerHTML = html;
+  renderLegend();
+  updateStats();
+  renderRecap();
+}
+
+function renderRecap() {
+  const out = document.getElementById('recapOutput');
+  if (calendarItems.length === 0) {
+    out.innerHTML = '<div class="recap-empty">Genera il calendario per vedere le date di fine.</div>';
+    return;
+  }
+
+  const lastDate = {};
+  const epCount = {};
+  calendarItems.forEach(item => {
+    lastDate[item.seriesId] = item.date;
+    epCount[item.seriesId] = (epCount[item.seriesId] || 0) + 1;
+  });
+
+  let html = '';
+  series.forEach(s => {
+    if (!lastDate[s.id]) return;
+    const d = lastDate[s.id];
+    const dateStr = d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+    const count = epCount[s.id] || 0;
+    html += `
+      <div class="recap-item">
+        <div class="recap-series-name">
+          <div class="recap-dot" style="background:${s.color.dot}"></div>
+          ${s.name}
+        </div>
+        <div class="recap-date">${dateStr}</div>
+        <div class="recap-ep-count">${count} ep. in totale</div>
+      </div>`;
+  });
+
+  out.innerHTML = html || '<div class="recap-empty">Nessuna serie trovata.</div>';
+}
+
+function togglePin(idx) {
+  calendarItems[idx].pinned = !calendarItems[idx].pinned;
+  renderCalendar();
+}
+
+function onDragStart(e, idx) {
+  dragSrc = idx;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function onDrop(e, idx) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (dragSrc === null || dragSrc === idx) return;
+  if (calendarItems[idx].pinned || calendarItems[dragSrc].pinned) {
+    alert('Non puoi spostare un video bloccato!');
+    return;
+  }
+  const moved = calendarItems.splice(dragSrc, 1)[0];
+  calendarItems.splice(idx, 0, moved);
+  calendarItems.forEach((item, i) => {
+    if (!item.pinned) {
+      const base = new Date(document.getElementById('startDate').value + 'T12:00:00');
+      base.setDate(base.getDate() + i * 7);
+      item.date = new Date(base);
+    }
+  });
+  dragSrc = null;
+  renderCalendar();
+}
+
+function renderLegend() {
+  const row = document.getElementById('legendRow');
+  row.innerHTML = '';
+  series.forEach(s => {
+    if (s.episodes > 0) {
+      const div = document.createElement('div');
+      div.className = 'legend-item';
+      div.innerHTML = `<div class="legend-dot" style="background:${s.color.dot}"></div>${s.name}`;
+      row.appendChild(div);
+    }
+  });
+}
+
+function updateStats() {
+  const total = calendarItems.length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-series').textContent = series.filter(s => s.episodes > 0).length;
+  if (total > 0) {
+    const last = calendarItems[total - 1].date;
+    document.getElementById('stat-end').textContent = last.toLocaleDateString('it-IT', { month: 'short', year: '2-digit' });
+  } else {
+    document.getElementById('stat-end').textContent = '—';
+  }
+}
+
+function exportPDF() {
+  if (calendarItems.length === 0) { alert('Genera prima il calendario!'); return; }
+
+  let rows = '';
+  let currentMonth = '';
+  calendarItems.forEach(item => {
+    const s = getSeries(item.seriesId);
+    if (!s) return;
+    const month = formatMonth(item.date);
+    if (month !== currentMonth) {
+      if (currentMonth !== '') rows += '</tbody></table>';
+      rows += `<h3 class="pdf-month">${month}</h3><table class="pdf-table"><tbody>`;
+      currentMonth = month;
+    }
+    const title = item.ep !== null ? s.name + ' ep. ' + item.ep : s.name;
+    const note = item.note ? `<div class="pdf-note">📝 ${item.note}</div>` : '';
+    rows += `<tr>
+      <td class="pdf-date">${formatDate(item.date)}</td>
+      <td><span class="pdf-badge" style="background:${s.color.bg};color:${s.color.text};">${title}${note}</span></td>
+    </tr>`;
+  });
+  if (currentMonth) rows += '</tbody></table>';
+
+  const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
+  <title>Calendario YouTube</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Nunito', sans-serif; background: #feeddd; color: #4a2535; padding: 32px; }
+    h1 { font-size: 22px; font-weight: 800; color: #df678f; margin-bottom: 4px; }
+    p.sub { font-size: 12px; color: #b07090; margin-bottom: 28px; }
+    .pdf-month { font-size: 11px; font-weight: 800; color: #df678f; text-transform: uppercase; letter-spacing: 0.08em; margin: 20px 0 8px; padding-bottom: 4px; border-bottom: 1.5px solid rgba(223,103,143,0.2); }
+    .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+    .pdf-table tr { border-bottom: 0.5px solid rgba(223,103,143,0.12); }
+    .pdf-date { font-size: 12px; color: #b07090; font-weight: 600; padding: 7px 12px 7px 0; white-space: nowrap; width: 160px; }
+    .pdf-badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+    .pdf-note { font-size: 10px; font-weight: 600; opacity: 0.75; margin-top: 2px; }
+    @media print { body { background: white; padding: 20px; } }
+  </style></head><body>
+  <h1>Studio Programmazione YouTube</h1>
+  <p class="sub">Esportato il ${new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+  ${rows}
+  <script>window.onload = function(){ window.print(); }<\/script>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+setNextTuesday();
+renderSeriesList();
+if (sheetsUrl) {
+  document.getElementById('sheetsUrl').value = sheetsUrl;
+  loadFromSheets();
+}
+</script>
+</body>
+</html>
