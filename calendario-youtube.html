@@ -330,7 +330,7 @@
 
   .series-item {
     display: grid;
-    grid-template-columns: 18px 10px 1fr auto 52px auto;
+    grid-template-columns: 18px 10px 1fr auto 52px 52px auto;
     align-items: center;
     gap: 7px;
     background: white;
@@ -815,6 +815,10 @@
         <label>Numero episodi</label>
         <input type="number" id="newSeriesEp" placeholder="es. 8" min="1" max="50" />
       </div>
+      <div class="form-group">
+        <label>Ep. iniziale <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(lascia vuoto se i video sono scollegati)</span></label>
+        <input type="number" id="newSeriesStartEp" placeholder="es. 1" min="1" max="999" />
+      </div>
       <button class="btn-add" onclick="addSeries()">+ Aggiungi serie</button>
     </div>
 
@@ -1109,9 +1113,10 @@ function renderSeriesList() {
         <span></span><span></span><span></span>
       </div>
       <div class="series-dot" style="background:${s.color.dot}"></div>
-      <div class="series-name">${s.name}</div>
+      <div class="series-name">${s.name}${item.ep !== null && item.ep !== undefined ? ' ep. ' + item.ep : ''}</div>
       <span class="series-type ${s.type === 'main' ? 'type-main' : 'type-casual'}">${s.type === 'main' ? 'principale' : 'casual'}</span>
-      <input class="series-ep-input" type="number" min="0" max="50" value="${s.episodes}" onchange="updateEpisodes(${s.id}, this.value)" />
+      <input class="series-ep-input" type="number" min="0" max="50" value="${s.episodes}" onchange="updateEpisodes(${s.id}, this.value)" title="Numero episodi" />
+      <input class="series-ep-input" type="number" min="1" max="999" value="${s.startEp ?? ''}" placeholder="ep.1" onchange="updateStartEp(${s.id}, this.value)" title="Episodio iniziale (vuoto = senza numero)" style="width:48px;color:var(--text-muted);" />
       <button class="btn-delete" onclick="deleteSeries(${s.id})">✕</button>
     `;
 
@@ -1156,6 +1161,12 @@ function updateEpisodes(id, val) {
   updateStats();
 }
 
+function updateStartEp(id, val) {
+  const s = series.find(x => x.id === id);
+  if (s) s.startEp = val.trim() !== '' ? parseInt(val) : null;
+  autoSave();
+}
+
 function deleteSeries(id) {
   series = series.filter(x => x.id !== id);
   renderSeriesList();
@@ -1166,10 +1177,13 @@ function addSeries() {
   const name = document.getElementById('newSeriesName').value.trim();
   const type = document.getElementById('newSeriesType').value;
   const ep = parseInt(document.getElementById('newSeriesEp').value) || 1;
+  const startEpVal = document.getElementById('newSeriesStartEp').value.trim();
+  const startEp = startEpVal !== '' ? parseInt(startEpVal) : null;
   if (!name) { alert('Inserisci il nome della serie!'); return; }
-  series.push({ id: nextId++, name, type, episodes: ep, color: { ...selectedColor } });
+  series.push({ id: nextId++, name, type, episodes: ep, startEp, color: { ...selectedColor } });
   document.getElementById('newSeriesName').value = '';
   document.getElementById('newSeriesEp').value = '';
+  document.getElementById('newSeriesStartEp').value = '';
   renderSeriesList();
   autoSave();
 }
@@ -1186,7 +1200,7 @@ document.querySelectorAll('.color-swatch').forEach(sw => {
 function buildCasuals(casualSeries) {
   const casuals = [];
   let casualCounters = {};
-  casualSeries.forEach(s => casualCounters[s.id] = 1);
+  casualSeries.forEach(s => casualCounters[s.id] = s.startEp ?? 1);
   let ci = 0;
   while (true) {
     let found = false;
@@ -1227,11 +1241,12 @@ function buildSequence() {
   if (currentAlgo === 'alternanza') {
     const narrative = [];
     let counters = {};
-    mainSeries.forEach(s => counters[s.id] = 1);
-    const maxMain = Math.max(...mainSeries.map(s => s.episodes), 0);
+    mainSeries.forEach(s => counters[s.id] = s.startEp ?? 1);
+    const maxMain = Math.max(...mainSeries.map(s => (s.startEp ?? 1) + s.episodes - 1), 0);
     for (let i = 0; i < maxMain; i++) {
       mainSeries.forEach(s => {
-        if (counters[s.id] <= s.episodes) narrative.push({ seriesId: s.id, ep: counters[s.id]++ });
+        const endEp = (s.startEp ?? 1) + s.episodes - 1;
+        if (counters[s.id] <= endEp) narrative.push({ seriesId: s.id, ep: s.startEp === null ? null : counters[s.id]++ });
       });
     }
     return injectCasuals(narrative, casuals);
@@ -1241,14 +1256,14 @@ function buildSequence() {
     const BLOCK = 2;
     const narrative = [];
     let counters = {};
-    mainSeries.forEach(s => counters[s.id] = 1);
+    mainSeries.forEach(s => counters[s.id] = s.startEp ?? 1);
     let done = false;
     while (!done) {
       done = true;
       mainSeries.forEach(s => {
         let added = 0;
-        while (counters[s.id] <= s.episodes && added < BLOCK) {
-          narrative.push({ seriesId: s.id, ep: counters[s.id]++ });
+        while (counters[s.id] <= (s.startEp ?? 1) + s.episodes - 1 && added < BLOCK) {
+          narrative.push({ seriesId: s.id, ep: s.startEp === null ? null : counters[s.id]++ });
           added++;
           done = false;
         }
@@ -1260,11 +1275,11 @@ function buildSequence() {
   if (currentAlgo === 'priorita') {
     const narrative = [];
     let counters = {};
-    mainSeries.forEach(s => counters[s.id] = 1);
+    mainSeries.forEach(s => counters[s.id] = s.startEp ?? 1);
     const sorted = [...mainSeries].sort((a, b) => b.episodes - a.episodes);
     sorted.forEach(s => {
-      while (counters[s.id] <= s.episodes) {
-        narrative.push({ seriesId: s.id, ep: counters[s.id]++ });
+      while (counters[s.id] <= (s.startEp ?? 1) + s.episodes - 1) {
+        narrative.push({ seriesId: s.id, ep: s.startEp === null ? null : counters[s.id]++ });
       }
     });
     return injectCasuals(narrative, casuals);
@@ -1340,7 +1355,7 @@ function renderCalendar() {
           <button onclick="toggleDateEdit(${idx})" style="padding:4px 8px;background:none;border:1px solid var(--border);border-radius:7px;font-family:'Nunito',sans-serif;font-size:11px;cursor:pointer;color:var(--text-muted);">✕</button>
         </div>
         <div class="cal-badge" style="background:${s.color.bg};color:${s.color.text};cursor:pointer;" onclick="toggleNoteInput(${idx})">
-          ${s.name}
+          ${s.name}${item.ep !== null && item.ep !== undefined ? ' ep. ' + item.ep : ''}
           ${item.note ? `<div style="font-size:10px;font-weight:600;opacity:0.75;margin-top:2px;">📝 ${item.note}</div>` : ''}
         </div>
         <button class="pin-btn ${item.pinned ? 'pinned' : ''}" onclick="togglePin(${idx})">${pinLabel}</button>
@@ -1387,7 +1402,7 @@ function renderRecap() {
       <div class="recap-item">
         <div class="recap-series-name">
           <div class="recap-dot" style="background:${s.color.dot}"></div>
-          ${s.name}
+          ${s.name}${item.ep !== null && item.ep !== undefined ? ' ep. ' + item.ep : ''}
         </div>
         <div class="recap-date">${dateStr}</div>
         <div class="recap-ep-count">${count} ep. in totale</div>
@@ -1480,7 +1495,7 @@ function exportPDF() {
       rows += `<h3 class="pdf-month">${month}</h3><table class="pdf-table"><tbody>`;
       currentMonth = month;
     }
-    const title = s.name;
+    const title = s.name + (item.ep !== null && item.ep !== undefined ? ' ep. ' + item.ep : '');
     const note = item.note ? `<div class="pdf-note">📝 ${item.note}</div>` : '';
     rows += `<tr>
       <td class="pdf-date">${formatDate(item.date)}</td>
