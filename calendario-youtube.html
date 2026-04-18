@@ -1024,7 +1024,14 @@ async function loadFromSheets() {
     if (json.data) {
       const d = json.data;
       if (d.series) { series = d.series; nextId = Math.max(...series.map(s => s.id), 4) + 1; }
-      if (d.startDate) { document.getElementById('startDate').value = d.startDate; localStorage.setItem('startDate', d.startDate); }
+      if (d.startDate) {
+        // Sovrascrive solo se non c'è già una data salvata localmente
+        const localDate = localStorage.getItem('startDate');
+        if (!localDate) {
+          document.getElementById('startDate').value = d.startDate;
+          localStorage.setItem('startDate', d.startDate);
+        }
+      }
       if (d.calendarItems) {
         calendarItems = d.calendarItems.map(item => ({ ...item, date: new Date(item.date) }));
       }
