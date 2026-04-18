@@ -647,6 +647,14 @@
     border-bottom-color: var(--pink-mid);
   }
 
+  .ep-clickable {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .ep-clickable:hover {
+    opacity: 0.5;
+  }
+
   .cal-badge {
     font-size: 14px;
     font-weight: 700;
@@ -900,6 +908,26 @@ function saveNote(idx) {
   const input = document.getElementById('note-input-' + idx);
   if (!input) return;
   calendarItems[idx].note = input.value.trim();
+  renderCalendar();
+  autoSave();
+}
+
+function toggleEpEdit(idx) {
+  const editWrap = document.getElementById('ep-edit-' + idx);
+  if (!editWrap) return;
+  const isVisible = editWrap.style.display !== 'none';
+  editWrap.style.display = isVisible ? 'none' : 'flex';
+  if (!isVisible) {
+    const input = document.getElementById('ep-input-' + idx);
+    if (input) { input.focus(); input.select(); }
+  }
+}
+
+function saveEp(idx) {
+  const input = document.getElementById('ep-input-' + idx);
+  if (!input) return;
+  const val = parseInt(input.value);
+  if (!isNaN(val) && val > 0) calendarItems[idx].ep = val;
   renderCalendar();
   autoSave();
 }
@@ -1254,8 +1282,15 @@ function renderCalendar() {
           <button onclick="toggleDateEdit(${idx})" style="padding:4px 8px;background:none;border:1px solid var(--border);border-radius:7px;font-family:'Nunito',sans-serif;font-size:11px;cursor:pointer;color:var(--text-muted);">✕</button>
         </div>
         <div class="cal-badge" style="background:${s.color.bg};color:${s.color.text};cursor:pointer;" onclick="toggleNoteInput(${idx})">
-          ${item.ep !== null ? s.name + ' ep. ' + item.ep : s.name}
+          ${item.ep !== null
+            ? s.name + ' <span id="ep-display-' + idx + '" class="ep-clickable" onclick="event.stopPropagation();toggleEpEdit(' + idx + ')" title="Clicca per modificare">ep. ' + item.ep + '</span>'
+            : s.name}
           ${item.note ? `<div style="font-size:10px;font-weight:600;opacity:0.75;margin-top:2px;">📝 ${item.note}</div>` : ''}
+        </div>
+        <div id="ep-edit-${idx}" style="display:none;align-items:center;gap:4px;margin-left:4px;">
+          <input type="number" id="ep-input-${idx}" value="${item.ep}" min="1" max="999" style="width:52px;padding:3px 6px;border:1.5px solid var(--pink-mid);border-radius:7px;font-family:'Nunito',sans-serif;font-size:12px;color:var(--text-dark);outline:none;" onkeydown="if(event.key==='Enter') saveEp(${idx}); if(event.key==='Escape') toggleEpEdit(${idx});" />
+          <button onclick="saveEp(${idx})" style="padding:3px 8px;background:var(--pink-mid);color:white;border:none;border-radius:7px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">Ok</button>
+          <button onclick="toggleEpEdit(${idx})" style="padding:3px 6px;background:none;border:1px solid var(--border);border-radius:7px;font-family:'Nunito',sans-serif;font-size:11px;cursor:pointer;color:var(--text-muted);">✕</button>
         </div>
         <button class="pin-btn ${item.pinned ? 'pinned' : ''}" onclick="togglePin(${idx})">${pinLabel}</button>
       </div>
