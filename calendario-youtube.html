@@ -714,6 +714,29 @@
   .pin-btn:hover { border-color: var(--purple); color: var(--purple); }
   .pin-btn.pinned { background: var(--purple); color: white; border-color: var(--purple); }
 
+  .regen-btn {
+    padding: 3px 10px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-muted);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s, color 0.15s;
+  }
+  .cal-row:hover .regen-btn {
+    opacity: 1;
+  }
+  .regen-btn:hover {
+    background: var(--teal);
+    color: white;
+    border-color: var(--teal);
+  }
+
   .pinned-row { background: #f5f3fc; }
 
   .empty-state {
@@ -1295,6 +1318,47 @@ function generateCalendar() {
   autoSave();
 }
 
+function regenFrom(idx) {
+  if (!confirm('Rigenera il calendario dal ' + formatDate(calendarItems[idx].date) + ' in poi?\nTutto quello prima di questo punto rimarrà invariato.')) return;
+
+  // Keep everything before idx intact
+  const kept = calendarItems.slice(0, idx);
+
+  // Build new sequence starting from the next ep of each series
+  // Count how many eps of each series are already in "kept"
+  const usedEps = {};
+  kept.forEach(item => {
+    if (!usedEps[item.seriesId]) usedEps[item.seriesId] = 0;
+    usedEps[item.seriesId]++;
+  });
+
+  // Adjust series episodes remaining
+  const adjustedSeries = series.map(s => {
+    const used = usedEps[s.id] || 0;
+    const remaining = Math.max(0, s.episodes - used);
+    const newStartEp = s.startEp !== null ? (s.startEp + used) : null;
+    return { ...s, episodes: remaining, startEp: newStartEp };
+  }).filter(s => s.episodes > 0);
+
+  // Build sequence with adjusted series
+  const originalSeries = series;
+  series = adjustedSeries;
+  const seq = buildSequence();
+  series = originalSeries;
+
+  // Map sequence to dates starting from idx date
+  const startDate = new Date(calendarItems[idx].date);
+  const newItems = seq.map((item, i) => {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i * 7);
+    return { ...item, date: new Date(d) };
+  });
+
+  calendarItems = [...kept, ...newItems];
+  renderCalendar();
+  autoSave();
+}
+
 function formatDate(d) {
   return d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
 }
@@ -1359,6 +1423,7 @@ function renderCalendar() {
           <button onclick="toggleEpEdit(${idx})" style="padding:3px 6px;background:none;border:1px solid var(--border);border-radius:7px;font-family:'Nunito',sans-serif;font-size:11px;cursor:pointer;color:var(--text-muted);">✕</button>
         </div>
         <button class="pin-btn ${item.pinned ? 'pinned' : ''}" onclick="togglePin(${idx})">${pinLabel}</button>
+        <button class="regen-btn" onclick="regenFrom(${idx})" title="Rigenera il calendario da questo video in poi">↻ da qui</button>
       </div>
       ${noteDisplay}
       <div class="note-input-wrap" id="note-wrap-${idx}" style="display:none;">
